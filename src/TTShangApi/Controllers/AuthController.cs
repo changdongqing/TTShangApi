@@ -21,7 +21,7 @@ public class AuthController : ControllerBase
         var result = await _authService.RegisterAsync(request);
 
         if (result == null)
-            return BadRequest(new { message = "Username or email already exists." });
+            return BadRequest(new { message = "Registration failed." });
 
         return Ok(result);
     }
