@@ -16,9 +16,9 @@ public static class AppConsts
     public const string DefaultAdminPassword = "123456";
 
     /// <summary>
-    /// JWT Token 密钥
+    /// JWT配置节名称
     /// </summary>
-    public const string JwtSecretKey = "TTShang_SecretKey_2024_MinLength32Chars!";
+    public const string JwtConfigSection = "JwtSettings";
 
     /// <summary>
     /// JWT Token 发行者

@@ -1,25 +1,24 @@
 using System.Security.Cryptography;
-using System.Text;
 
 namespace TTShang.Domain.Shared.Utils;
 
 /// <summary>
-/// 密码加密工具
+/// 密码加密工具（使用PBKDF2）
 /// </summary>
 public static class PasswordHelper
 {
+    private const int SaltSize = 16;
+    private const int HashSize = 32;
+    private const int Iterations = 100_000;
+
     /// <summary>
-    /// SHA256加密密码
+    /// 使用PBKDF2哈希密码
     /// </summary>
     public static string HashPassword(string password)
     {
-        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(password));
-        var sb = new StringBuilder();
-        foreach (var b in bytes)
-        {
-            sb.Append(b.ToString("x2"));
-        }
-        return sb.ToString();
+        var salt = RandomNumberGenerator.GetBytes(SaltSize);
+        var hash = Rfc2898DeriveBytes.Pbkdf2(password, salt, Iterations, HashAlgorithmName.SHA256, HashSize);
+        return $"{Convert.ToBase64String(salt)}.{Convert.ToBase64String(hash)}";
     }
 
     /// <summary>
@@ -27,7 +26,13 @@ public static class PasswordHelper
     /// </summary>
     public static bool VerifyPassword(string password, string hashedPassword)
     {
-        var hash = HashPassword(password);
-        return string.Equals(hash, hashedPassword, StringComparison.OrdinalIgnoreCase);
+        var parts = hashedPassword.Split('.');
+        if (parts.Length != 2) return false;
+
+        var salt = Convert.FromBase64String(parts[0]);
+        var storedHash = Convert.FromBase64String(parts[1]);
+        var computedHash = Rfc2898DeriveBytes.Pbkdf2(password, salt, Iterations, HashAlgorithmName.SHA256, HashSize);
+
+        return CryptographicOperations.FixedTimeEquals(storedHash, computedHash);
     }
 }

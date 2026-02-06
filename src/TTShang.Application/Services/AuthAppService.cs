@@ -4,6 +4,7 @@ using System.Text;
 using Furion.DynamicApiController;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using TTShang.Application.Contracts.Dtos;
 using TTShang.Application.Contracts.Services;
@@ -21,10 +22,12 @@ namespace TTShang.Application.Services;
 public class AuthAppService : IDynamicApiController, IAuthService
 {
     private readonly ISysUserRepository _userRepository;
+    private readonly IConfiguration _configuration;
 
-    public AuthAppService(ISysUserRepository userRepository)
+    public AuthAppService(ISysUserRepository userRepository, IConfiguration configuration)
     {
         _userRepository = userRepository;
+        _configuration = configuration;
     }
 
     /// <summary>
@@ -38,19 +41,19 @@ public class AuthAppService : IDynamicApiController, IAuthService
         var user = await _userRepository.GetByUserNameAsync(input.UserName);
         if (user == null)
         {
-            throw new Exception("用户名或密码错误");
+            throw new InvalidOperationException("用户名或密码错误");
         }
 
         // 验证密码
         if (!PasswordHelper.VerifyPassword(input.Password, user.Password))
         {
-            throw new Exception("用户名或密码错误");
+            throw new InvalidOperationException("用户名或密码错误");
         }
 
         // 检查状态
         if (user.Status == StatusEnum.Disabled)
         {
-            throw new Exception("用户已被禁用");
+            throw new InvalidOperationException("用户已被禁用");
         }
 
         // 生成JWT Token
@@ -84,9 +87,11 @@ public class AuthAppService : IDynamicApiController, IAuthService
     /// <summary>
     /// 生成JWT Token
     /// </summary>
-    private static string GenerateJwtToken(long userId, string userName)
+    private string GenerateJwtToken(long userId, string userName)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AppConsts.JwtSecretKey));
+        var secretKey = _configuration["JwtSettings:SecretKey"]
+            ?? throw new InvalidOperationException("JWT SecretKey is not configured");
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
