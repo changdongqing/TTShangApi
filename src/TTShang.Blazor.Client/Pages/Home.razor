@@ -1,0 +1,41 @@
+@page "/"
+@inject IAuthClientService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>TTShang 管理系统</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudText Typo="Typo.h3" Align="Align.Center" Class="mb-4">
+        欢迎使用 TTShang 管理系统
+    </MudText>
+    <MudText Typo="Typo.body1" Align="Align.Center" Class="mb-4">
+        基于 Furion + MudBlazor + SqlSugar 的 DDD 架构应用框架
+    </MudText>
+    <MudDivider Class="my-4" />
+    <MudGrid>
+        <MudItem xs="12" sm="6" md="4">
+            <MudCard>
+                <MudCardContent>
+                    <MudText Typo="Typo.h6">模块化架构</MudText>
+                    <MudText Typo="Typo.body2">采用DDD分层设计，支持模块化扩展</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="4">
+            <MudCard>
+                <MudCardContent>
+                    <MudText Typo="Typo.h6">Blazor Auto 模式</MudText>
+                    <MudText Typo="Typo.body2">Server + WebAssembly 双模式自动切换</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="4">
+            <MudCard>
+                <MudCardContent>
+                    <MudText Typo="Typo.h6">PostgreSQL</MudText>
+                    <MudText Typo="Typo.body2">使用SqlSugar ORM对接PostgreSQL数据库</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
